@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Syllabus Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:      #111213;
+  --bg2:     #191a1c;
+  --bg3:     #222326;
+  --bg4:     #2a2b2e;
+  --border:  rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --text:    #e2e2e2;
+  --text2:   #9a9a9a;
+  --text3:   #4e4e4e;
+  --r:       12px;
+  --rs:      8px;
+}
+html,body { color-scheme:dark; background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; font-size:14px; line-height:1.6; min-height:100vh; -webkit-font-smoothing:antialiased; }
+
+.page { max-width:1300px; margin:0 auto; padding:2rem 1.5rem 4rem; }
+.main { display:grid; grid-template-columns:1fr 290px; gap:14px; align-items:start; }
+
+/* header */
+.hdr { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; margin-bottom:2rem; flex-wrap:wrap; }
+.hdr h1 { font-family:'DM Serif Display',serif; font-size:clamp(22px,4vw,32px); font-weight:400; color:var(--text); letter-spacing:-.5px; }
+.hdr p { font-size:12px; color:var(--text3); margin-top:3px; }
+.ts-lbl { font-size:10px; color:var(--text3); text-transform:uppercase; letter-spacing:.08em; }
+.ts-val { font-size:12px; color:var(--text2); margin-top:3px; text-align:right; }
+
+/* stats */
+.stats { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:1.75rem; }
+.stat { background:var(--bg2); border:1px solid var(--border); border-radius:var(--rs); padding:14px 16px; }
+.stat-lbl { font-size:10px; color:var(--text3); text-transform:uppercase; letter-spacing:.08em; margin-bottom:5px; }
+.stat-val { font-size:26px; font-weight:500; color:var(--text); line-height:1; }
+.stat-sub { font-size:11px; color:var(--text3); margin-top:3px; }
+
+/* cards */
+.subjects { display:flex; flex-direction:column; gap:10px; }
+.card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--r); overflow:hidden; transition:border-color .2s; }
+.card:hover { border-color:var(--border2); }
+.card-hdr { display:flex; align-items:center; justify-content:space-between; padding:14px 16px 10px; cursor:pointer; user-select:none; gap:12px; }
+.card-hdr:hover { background:var(--bg3); }
+.hdr-l { display:flex; align-items:center; gap:11px; min-width:0; }
+.sdot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.sname { font-size:14px; font-weight:500; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.scode { font-size:11px; color:var(--text3); margin-top:1px; }
+.hdr-r { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+.badge { font-size:11px; font-weight:500; padding:3px 9px; border-radius:20px; }
+.chev { color:var(--text3); font-size:9px; transition:transform .25s; display:inline-block; }
+.chev.open { transform:rotate(180deg); }
+
+.prog-row { padding:0 16px 12px; display:flex; align-items:center; gap:8px; }
+.prog-bg { flex:1; height:4px; background:var(--bg4); border-radius:2px; overflow:hidden; }
+.prog-fill { height:100%; border-radius:2px; transition:width .6s cubic-bezier(.4,0,.2,1); }
+.prog-pct { font-size:11px; color:var(--text3); min-width:28px; text-align:right; }
+
+/* topics */
+.tbody { border-top:1px solid var(--border); display:none; }
+.tbody.open { display:block; }
+
+.trow { display:grid; grid-template-columns:16px 1fr auto auto; align-items:center; gap:10px; padding:8px 16px; border-bottom:1px solid var(--border); }
+.trow:last-child { border-bottom:none; }
+.trow:hover .date-btn { opacity:1; }
+
+.tcb { width:14px; height:14px; cursor:pointer; accent-color:#8b9dff; flex-shrink:0; }
+.tname { font-size:13px; color:var(--text); }
+.tname.done { text-decoration:line-through; color:var(--text3); }
+
+.date-btn {
+  position:relative; display:inline-flex; align-items:center;
+  font-size:11px; color:var(--text3); cursor:pointer; font-family:inherit;
+  padding:2px 8px; border-radius:20px; border:1px solid transparent;
+  background:transparent; white-space:nowrap; transition:all .15s;
+  opacity:0; line-height:1.6;
+}
+.date-btn.has-date { opacity:1; color:var(--text2); background:var(--bg3); border-color:var(--border); }
+.date-btn:hover { opacity:1; background:var(--bg4); border-color:var(--border2); color:var(--text); }
+.date-btn input[type=date] {
+  position:absolute; inset:0; opacity:0; cursor:pointer;
+  width:100%; height:100%; border:none; background:none;
+}
+
+.comp-ts { font-size:10px; color:var(--text3); white-space:nowrap; text-align:right; min-width:56px; }
+
+.add-row { display:flex; gap:6px; padding:10px 16px; border-top:1px solid var(--border); background:var(--bg3); }
+.add-inp { flex:1; background:var(--bg4); border:1px solid var(--border2); border-radius:var(--rs); padding:6px 10px; color:var(--text); font-size:12px; font-family:inherit; outline:none; }
+.add-inp::placeholder { color:var(--text3); }
+.add-inp:focus { border-color:rgba(255,255,255,.2); }
+.add-btn { background:var(--bg4); border:1px solid var(--border2); border-radius:var(--rs); padding:6px 12px; color:var(--text2); font-size:12px; font-family:inherit; cursor:pointer; }
+.add-btn:hover { color:var(--text); }
+
+/* right */
+.right-col { display:flex; flex-direction:column; gap:12px; }
+.panel { background:var(--bg2); border:1px solid var(--border); border-radius:var(--r); padding:16px; }
+.panel-title { font-size:10px; font-weight:500; color:var(--text3); text-transform:uppercase; letter-spacing:.09em; margin-bottom:14px; }
+
+/* calendar */
+.cal-nav { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.cal-nav-btn { background:none; border:none; color:var(--text2); font-size:18px; cursor:pointer; padding:0 5px; line-height:1; border-radius:4px; }
+.cal-nav-btn:hover { background:var(--bg4); }
+.cal-month { font-size:13px; font-weight:500; color:var(--text); }
+.cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
+.cal-dow { font-size:10px; color:var(--text3); text-align:center; padding-bottom:6px; }
+.cal-cell { display:flex; flex-direction:column; align-items:center; gap:2px; padding:3px 1px 4px; border-radius:6px; cursor:pointer; min-height:34px; }
+.cal-cell:hover:not(.other-m) { background:var(--bg4); }
+.cal-num { font-size:11px; color:var(--text2); line-height:1.2; width:22px; height:22px; display:flex; align-items:center; justify-content:center; border-radius:50%; }
+.cal-cell.other-m .cal-num { color:var(--text3); }
+.cal-cell.today .cal-num { background:#2a3060; color:#aab4ff; font-weight:500; }
+.cal-cell.selected:not(.today) .cal-num { background:var(--bg4); border:1px solid var(--border2); }
+.cal-dots { display:flex; gap:2px; flex-wrap:wrap; justify-content:center; max-width:28px; }
+.cal-dot { width:4px; height:4px; border-radius:50%; }
+
+/* day task panel */
+.day-panel { margin-top:14px; padding-top:14px; border-top:1px solid var(--border); display:none; }
+.day-panel.open { display:block; }
+.day-panel-hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.day-panel-date { font-size:13px; font-weight:500; color:var(--text); }
+.day-panel-count { font-size:11px; color:var(--text3); }
+.day-task { display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid var(--border); }
+.day-task:last-child { border-bottom:none; }
+.day-task-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+.day-task-name { font-size:12px; color:var(--text); flex:1; }
+.day-task-name.done { text-decoration:line-through; color:var(--text3); }
+.day-task-code { font-size:10px; color:var(--text3); padding:1px 6px; border-radius:10px; background:var(--bg4); }
+.day-no-tasks { font-size:12px; color:var(--text3); text-align:center; padding:4px 0; }
+
+/* chart */
+.chart-wrap { position:relative; width:100%; height:185px; }
+
+/* activity */
+.act-item { display:flex; gap:10px; padding:7px 0; border-bottom:1px solid var(--border); }
+.act-item:last-child { border-bottom:none; }
+.act-dot { width:6px; height:6px; border-radius:50%; margin-top:5px; flex-shrink:0; }
+.act-text { font-size:12px; color:var(--text); line-height:1.4; }
+.act-time { font-size:10px; color:var(--text3); margin-top:1px; }
+.no-act { font-size:12px; color:var(--text3); text-align:center; padding:6px 0; }
+
+/* responsive */
+@media(max-width:900px){
+  .main { grid-template-columns:1fr; }
+  .right-col { display:grid; grid-template-columns:1fr 1fr; }
+}
+@media(max-width:600px){
+  .stats { grid-template-columns:repeat(2,1fr); }
+  .right-col { grid-template-columns:1fr; }
+  .page { padding:1.2rem 1rem 3rem; }
+  .trow { grid-template-columns:16px 1fr auto; }
+  .comp-ts { display:none; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="hdr">
+  <div>
+    <h1>Semester Syllabus Tracker</h1>
+    <p>Assign study dates to topics · click a calendar day to see its tasks</p>
+  </div>
+  <div>
+    <div class="ts-lbl">Session started</div>
+    <div class="ts-val" id="now-ts"></div>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-lbl">Overall</div><div class="stat-val" id="s-overall">0%</div><div class="stat-sub">completion</div></div>
+  <div class="stat"><div class="stat-lbl">Done</div><div class="stat-val" id="s-done">0</div><div class="stat-sub">of <span id="s-total">50</span> topics</div></div>
+  <div class="stat"><div class="stat-lbl">Scheduled</div><div class="stat-val" id="s-sched">0</div><div class="stat-sub">topics dated</div></div>
+  <div class="stat"><div class="stat-lbl">Sessions</div><div class="stat-val" id="s-streak">0</div><div class="stat-sub">logged</div></div>
+</div>
+
+<div class="main">
+  <div class="subjects" id="subjects-col"></div>
+  <div class="right-col">
+
+    <div class="panel">
+      <div class="panel-title">Calendar</div>
+      <div class="cal-nav">
+        <button class="cal-nav-btn" id="cal-prev">&#8249;</button>
+        <div class="cal-month" id="cal-lbl"></div>
+        <button class="cal-nav-btn" id="cal-next">&#8250;</button>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+      <div class="day-panel" id="day-panel">
+        <div class="day-panel-hdr">
+          <div class="day-panel-date" id="day-panel-date"></div>
+          <div class="day-panel-count" id="day-panel-count"></div>
+        </div>
+        <div id="day-task-list"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Progress overview</div>
+      <div class="chart-wrap">
+        <canvas id="progChart" role="img" aria-label="Horizontal bar chart of subject completion percentages.">Completion by subject.</canvas>
+      </div>
+    </div>
+
+    <div class="panel" style="grid-column:1/-1">
+      <div class="panel-title">Recent activity</div>
+      <div id="activity-log"></div>
+      <div class="no-act" id="no-act">No activity yet — start checking off topics!</div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const SUBJECTS = [
+  { id:'dsa',  name:'Data Structures & Algorithms',        code:'DSA',   color:'#7b9cff', bg:'rgba(123,156,255,0.1)',
+    topics:['Searching','Sorting','Hashing','Linked List','Stack','Queue','Tree','Heap','Graph'] },
+  { id:'qme',  name:'Quantum Mechanics & Electromagnetics', code:'QM+EM', color:'#b09dff', bg:'rgba(176,157,255,0.1)',
+    topics:['Quantum Mechanics','The Wave Equation',"Schrödinger's Equation",'Linearity and Superposition','Expectation Values','Operators',"Schrödinger's Equation: Steady-State Form",'Particle in a Box','Finite Potential Well','Tunnel Effect','Harmonic Oscillator','Vector Analysis','Electrostatics','Potentials','Electric Fields in Matter','Magnetostatics','Magnetic Fields in Matter','Electrodynamics','Conservation Laws','Electromagnetic Waves'] },
+  { id:'lade', name:'Linear Algebra & Diff. Equations',     code:'LA+DE', color:'#6bcfaa', bg:'rgba(107,207,170,0.1)',
+    topics:['Variable Separable','Exact ODE',"Picard's Theorem",'Second Order ODE with Const. Coeff.','Cauchy Euler Theorem','Method of Undetermined Coefficients','Variation of Parameters','Operator Method','Higher Order ODE','Power Series Method','Sturm Liouville BVP','Eigenvalue and Eigenvectors','Laplace Transform'] },
+  { id:'es',   name:'Electronic Systems',                   code:'ES',    color:'#ffaa6b', bg:'rgba(255,170,107,0.1)',
+    topics:['Op-Amp','Filters','Laplace Transform','Bode Plot','Logic Gates','K-Map','Signal System','LTI System'] },
+  { id:'nas',  name:'Network Analysis & Synthesis',         code:'NAS',   color:'#ff8fa3', bg:'rgba(255,143,163,0.1)',
+    topics:['Graph Theory(CH-3)','Network Theorem(CH-4)','Laplace Transform (CH-5)','Two Port Network (CH-6)','Sinusoidal Steady State Analysis (CH-8)','Magnetically Coupled Circuits(CH-9)','Network Synthesis (CH-12)'] }
+];
+
+const SK='syltk_v5', SAK='syltk_act_v5';
+let state = JSON.parse(localStorage.getItem(SK)||'null') || { done:{}, compTs:{}, dates:{} };
+let actLog = JSON.parse(localStorage.getItem(SAK)||'[]');
+if(!state.dates) state.dates={};
+if(!state.compTs) state.compTs={};
+
+function save(){ localStorage.setItem(SK,JSON.stringify(state)); localStorage.setItem(SAK,JSON.stringify(actLog.slice(-40))); }
+function fmtTs(ms){ return new Date(ms).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',hour12:true}); }
+function fmtDate(str){ if(!str) return ''; const [y,m,d]=str.split('-'); return new Date(+y,+m-1,+d).toLocaleDateString('en-IN',{day:'2-digit',month:'short'}); }
+function nowStr(){ return new Date().toLocaleString('en-IN',{weekday:'short',day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true}); }
+
+document.getElementById('now-ts').textContent=nowStr();
+setInterval(()=>{ document.getElementById('now-ts').textContent=nowStr(); },15000);
+
+function getPct(s){ return Math.round(((state.done[s.id]||[]).length)/s.topics.length*100); }
+
+function updateStats(){
+  let done=0,total=0,sched=0;
+  SUBJECTS.forEach(s=>{
+    done+=(state.done[s.id]||[]).length;
+    total+=s.topics.length;
+    s.topics.forEach(t=>{ if((state.dates[s.id]||{})[t]) sched++; });
+  });
+  document.getElementById('s-overall').textContent=Math.round(done/total*100)+'%';
+  document.getElementById('s-done').textContent=done;
+  document.getElementById('s-total').textContent=total;
+  document.getElementById('s-sched').textContent=sched;
+  document.getElementById('s-streak').textContent=actLog.length;
+}
+
+function updateChart(){
+  if(!window._ch) return;
+  window._ch.data.datasets[0].data=SUBJECTS.map(s=>getPct(s));
+  window._ch.update('active');
+}
+
+function renderLog(){
+  const el=document.getElementById('activity-log'), no=document.getElementById('no-act');
+  if(!actLog.length){ el.innerHTML=''; no.style.display='block'; return; }
+  no.style.display='none';
+  el.innerHTML=actLog.slice(-6).reverse().map(a=>`
+    <div class="act-item">
+      <div class="act-dot" style="background:${a.color}"></div>
+      <div><div class="act-text">${a.text}</div><div class="act-time">${fmtTs(a.time)}</div></div>
+    </div>`).join('');
+}
+
+window.setTopicDate = function(sid, topic, val){
+  if(!state.dates[sid]) state.dates[sid]={};
+  if(val) state.dates[sid][topic]=val; else delete state.dates[sid][topic];
+  save(); refreshCard(sid); updateStats(); renderCal(); renderDayPanel(selectedDay);
+};
+
+window.toggleTopic = function(sid, topic, checked){
+  if(!state.done[sid]) state.done[sid]=[];
+  if(!state.compTs[sid]) state.compTs[sid]={};
+  if(checked){
+    if(!state.done[sid].includes(topic)) state.done[sid].push(topic);
+    state.compTs[sid][topic]=Date.now();
+  } else {
+    state.done[sid]=state.done[sid].filter(t=>t!==topic);
+    delete state.compTs[sid][topic];
+  }
+  const s=SUBJECTS.find(x=>x.id===sid);
+  actLog.push({ text:(checked?'Completed':'Unchecked')+' "'+topic+'" · '+s.code, color:s.color, time:Date.now() });
+  save(); refreshCard(sid); updateStats(); updateChart(); renderLog(); renderDayPanel(selectedDay);
+};
+
+window.addTopic = function(sid){
+  const inp=document.getElementById('inp-'+sid); const v=inp.value.trim();
+  if(!v) return;
+  const s=SUBJECTS.find(x=>x.id===sid);
+  if(!s.topics.includes(v)) s.topics.push(v);
+  inp.value=''; refreshCard(sid); updateStats(); updateChart();
+};
+
+function esc(s){ return s.replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+
+function refreshCard(sid){
+  const s=SUBJECTS.find(x=>x.id===sid);
+  const done=state.done[sid]||[], cts=state.compTs[sid]||{}, dates=state.dates[sid]||{};
+  const pct=getPct(s);
+  const card=document.getElementById('card-'+sid); if(!card) return;
+  card.querySelector('.prog-fill').style.width=pct+'%';
+  card.querySelector('.prog-pct').textContent=pct+'%';
+  card.querySelector('.badge').textContent=pct+'%';
+  const tbody=card.querySelector('.tbody');
+  const wasOpen=tbody.classList.contains('open');
+
+  tbody.innerHTML=s.topics.map(t=>{
+    const chk=done.includes(t), d=dates[t]||'';
+    const label=d?fmtDate(d):'+ date';
+    const ts=cts[t]?`<span class="comp-ts">${fmtTs(cts[t])}</span>`:'<span class="comp-ts"></span>';
+    return `<div class="trow">
+      <input type="checkbox" class="tcb" ${chk?'checked':''} onchange="toggleTopic('${sid}','${esc(t)}',this.checked)">
+      <span class="tname${chk?' done':''}">${t}</span>
+      <button type="button" class="date-btn${d?' has-date':''}" title="${d?'Change date':'Assign a study date'}">
+        ${label}
+        <input type="date" value="${d}" onclick="try{this.showPicker();}catch(e){}" onchange="setTopicDate('${sid}','${esc(t)}',this.value)">
+      </button>
+      ${ts}
+    </div>`;
+  }).join('')+`<div class="add-row">
+    <input class="add-inp" id="inp-${sid}" placeholder="Add a topic…" onkeydown="if(event.key==='Enter')addTopic('${sid}')">
+    <button class="add-btn" onclick="addTopic('${sid}')">+ Add</button>
+  </div>`;
+
+  if(wasOpen) tbody.classList.add('open');
+}
+
+function buildCards(){
+  const col=document.getElementById('subjects-col'); col.innerHTML='';
+  SUBJECTS.forEach(s=>{
+    const div=document.createElement('div'); div.className='card'; div.id='card-'+s.id;
+    div.innerHTML=`
+      <div class="card-hdr" onclick="toggleCard('${s.id}')">
+        <div class="hdr-l">
+          <div class="sdot" style="background:${s.color}"></div>
+          <div><div class="sname">${s.name}</div><div class="scode">${s.code}</div></div>
+        </div>
+        <div class="hdr-r">
+          <span class="badge" style="background:${s.bg};color:${s.color}">${getPct(s)}%</span>
+          <span class="chev" id="chev-${s.id}">▼</span>
+        </div>
+      </div>
+      <div class="prog-row">
+        <div class="prog-bg"><div class="prog-fill" style="background:${s.color};width:${getPct(s)}%"></div></div>
+        <span class="prog-pct">${getPct(s)}%</span>
+      </div>
+      <div class="tbody" id="tbody-${s.id}"></div>`;
+    col.appendChild(div);
+    refreshCard(s.id);
+  });
+}
+
+window.toggleCard=function(sid){
+  document.getElementById('tbody-'+sid).classList.toggle('open');
+  document.getElementById('chev-'+sid).classList.toggle('open');
+};
+
+buildCards(); updateStats(); renderLog();
+
+/* ── Calendar ───────────────────────────────────────────── */
+let calD=new Date(2026,3,1), selectedDay=null;
+
+function getDateStr(y,m,d){ return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
+
+function getTasksForDate(ds){
+  const tasks=[];
+  SUBJECTS.forEach(s=>{
+    const dates=state.dates[s.id]||{};
+    s.topics.forEach(t=>{ if(dates[t]===ds) tasks.push({topic:t,subj:s,done:(state.done[s.id]||[]).includes(t)}); });
+  });
+  return tasks;
+}
+
+function getDotsForDate(ds){
+  const colors=[];
+  SUBJECTS.forEach(s=>{
+    if(s.topics.some(t=>(state.dates[s.id]||{})[t]===ds)) colors.push(s.color);
+  });
+  return colors;
+}
+
+function renderDayPanel(ds){
+  const panel=document.getElementById('day-panel');
+  if(!ds){ panel.classList.remove('open'); return; }
+  const tasks=getTasksForDate(ds);
+  const [y,m,d]=ds.split('-');
+  const label=new Date(+y,+m-1,+d).toLocaleDateString('en-IN',{weekday:'long',day:'2-digit',month:'long'});
+  document.getElementById('day-panel-date').textContent=label;
+  document.getElementById('day-panel-count').textContent=tasks.length ? tasks.length+' task'+(tasks.length>1?'s':'') : '';
+  const list=document.getElementById('day-task-list');
+  if(!tasks.length){
+    list.innerHTML='<div class="day-no-tasks">No tasks scheduled for this day</div>';
+  } else {
+    list.innerHTML=tasks.map(({topic,subj,done})=>`
+      <div class="day-task">
+        <div class="day-task-dot" style="background:${subj.color}"></div>
+        <span class="day-task-name${done?' done':''}">${topic}</span>
+        <span class="day-task-code">${subj.code}</span>
+      </div>`).join('');
+  }
+  panel.classList.add('open');
+}
+
+function renderCal(){
+  const y=calD.getFullYear(), m=calD.getMonth();
+  document.getElementById('cal-lbl').textContent=new Date(y,m,1).toLocaleString('en',{month:'long',year:'numeric'});
+  const grid=document.getElementById('cal-grid'); grid.innerHTML='';
+  ['S','M','T','W','T','F','S'].forEach(d=>{ const el=document.createElement('div'); el.className='cal-dow'; el.textContent=d; grid.appendChild(el); });
+  const first=new Date(y,m,1).getDay(), days=new Date(y,m+1,0).getDate();
+  const todayKey=getDateStr(new Date().getFullYear(),new Date().getMonth(),new Date().getDate());
+
+  for(let i=0;i<first;i++){
+    const el=document.createElement('div'); el.className='cal-cell other-m';
+    el.innerHTML=`<span class="cal-num">${new Date(y,m,-first+i+1).getDate()}</span>`;
+    grid.appendChild(el);
+  }
+
+  for(let d=1;d<=days;d++){
+    const ds=getDateStr(y,m,d);
+    const isToday=ds===todayKey, isSel=ds===selectedDay;
+    const dots=getDotsForDate(ds);
+    const el=document.createElement('div');
+    el.className='cal-cell'+(isToday?' today':'')+(isSel&&!isToday?' selected':'');
+    el.innerHTML=`<span class="cal-num">${d}</span>`
+      +(dots.length?`<div class="cal-dots">${dots.slice(0,5).map(c=>`<div class="cal-dot" style="background:${c}"></div>`).join('')}</div>`:'');
+    el.onclick=()=>{ selectedDay=(selectedDay===ds?null:ds); renderCal(); renderDayPanel(selectedDay); };
+    grid.appendChild(el);
+  }
+}
+
+document.getElementById('cal-prev').onclick=()=>{ calD=new Date(calD.getFullYear(),calD.getMonth()-1,1); renderCal(); };
+document.getElementById('cal-next').onclick=()=>{ calD=new Date(calD.getFullYear(),calD.getMonth()+1,1); renderCal(); };
+renderCal();
+
+/* ── Chart ─────────────────────────────────────────────── */
+window._ch=new Chart(document.getElementById('progChart'),{
+  type:'bar',
+  data:{
+    labels:SUBJECTS.map(s=>s.code),
+    datasets:[{ data:SUBJECTS.map(s=>getPct(s)), backgroundColor:SUBJECTS.map(s=>s.color+'28'), borderColor:SUBJECTS.map(s=>s.color), borderWidth:1.5, borderRadius:4, borderSkipped:false }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false, indexAxis:'y',
+    plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'#1c1d20', titleColor:'#e2e2e2', bodyColor:'#9a9a9a', borderColor:'rgba(255,255,255,0.08)', borderWidth:1, callbacks:{label:c=>c.parsed.x+'% done'} } },
+    scales:{
+      x:{ min:0,max:100, grid:{color:'rgba(255,255,255,0.04)'}, ticks:{color:'#4e4e4e',font:{size:10},callback:v=>v+'%'}, border:{display:false} },
+      y:{ grid:{display:false}, ticks:{color:'#9a9a9a',font:{size:11}}, border:{display:false} }
+    }
+  }
+});
+</script>
+</body>
+</html>
