@@ -20,7 +20,7 @@
   --r:       12px;
   --rs:      8px;
 }
-html,body { color-scheme:dark; background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; font-size:14px; line-height:1.6; min-height:100vh; -webkit-font-smoothing:antialiased; }
+html,body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; font-size:14px; line-height:1.6; min-height:100vh; -webkit-font-smoothing:antialiased; }
 
 .page { max-width:1300px; margin:0 auto; padding:2rem 1.5rem 4rem; }
 .main { display:grid; grid-template-columns:1fr 290px; gap:14px; align-items:start; }
@@ -63,9 +63,10 @@ html,body { color-scheme:dark; background:var(--bg); color:var(--text); font-fam
 .tbody { border-top:1px solid var(--border); display:none; }
 .tbody.open { display:block; }
 
-.trow { display:grid; grid-template-columns:16px 1fr auto auto; align-items:center; gap:10px; padding:8px 16px; border-bottom:1px solid var(--border); }
+.trow { display:grid; grid-template-columns:16px 1fr auto auto auto; align-items:center; gap:10px; padding:8px 16px; border-bottom:1px solid var(--border); }
 .trow:last-child { border-bottom:none; }
 .trow:hover .date-btn { opacity:1; }
+.trow:hover .del-btn { opacity:1; }
 
 .tcb { width:14px; height:14px; cursor:pointer; accent-color:#8b9dff; flex-shrink:0; }
 .tname { font-size:13px; color:var(--text); }
@@ -86,6 +87,13 @@ html,body { color-scheme:dark; background:var(--bg); color:var(--text); font-fam
 }
 
 .comp-ts { font-size:10px; color:var(--text3); white-space:nowrap; text-align:right; min-width:56px; }
+
+.del-btn {
+  opacity:0; background:none; border:none; cursor:pointer;
+  color:var(--text3); font-size:15px; line-height:1; padding:2px 4px;
+  border-radius:4px; transition:all .15s; flex-shrink:0;
+}
+.del-btn:hover { color:#ff6b6b; background:rgba(255,107,107,0.1); }
 
 .add-row { display:flex; gap:6px; padding:10px 16px; border-top:1px solid var(--border); background:var(--bg3); }
 .add-inp { flex:1; background:var(--bg4); border:1px solid var(--border2); border-radius:var(--rs); padding:6px 10px; color:var(--text); font-size:12px; font-family:inherit; outline:none; }
@@ -151,6 +159,7 @@ html,body { color-scheme:dark; background:var(--bg); color:var(--text); font-fam
   .page { padding:1.2rem 1rem 3rem; }
   .trow { grid-template-columns:16px 1fr auto; }
   .comp-ts { display:none; }
+  .del-btn { opacity:1; }
 }
 </style>
 </head>
@@ -217,22 +226,35 @@ html,body { color-scheme:dark; background:var(--bg); color:var(--text); font-fam
 <script>
 const SUBJECTS = [
   { id:'dsa',  name:'Data Structures & Algorithms',        code:'DSA',   color:'#7b9cff', bg:'rgba(123,156,255,0.1)',
-    topics:['Searching','Sorting','Linked List','Stack','Queue','Tree','Heap','Graph'] },
+    topics:['Arrays & Strings','Linked Lists','Stacks & Queues','Trees & BST','Heaps','Graphs & BFS/DFS','Dynamic Programming','Sorting Algorithms','Greedy Algorithms','Tries & Hashing'] },
   { id:'qme',  name:'Quantum Mechanics & Electromagnetics', code:'QM+EM', color:'#b09dff', bg:'rgba(176,157,255,0.1)',
-    topics:['Quantum Mechanics','The Wave Equation',"Schrödinger's Equation",'Linearity and Superposition','Expectation Values','Operators',"Schrödinger's Equation: Steady-State Form",'Particle in a Box','Finite Potential Well','Tunnel Effect','Harmonic Oscillator','Vector Analysis','Electrostatics','Potentials','Electric Fields in Matter','Magnetostatics','Magnetic Fields in Matter','Electrodynamics','Conservation Laws','Electromagnetic Waves'] },
+    topics:["Schrödinger Equation","Particle in a Box","Quantum Tunneling","Harmonic Oscillator","Operators & Commutators","Wave-Particle Duality","Maxwell's Equations","EM Waves","Gauss's Law","Faraday's Law"] },
   { id:'lade', name:'Linear Algebra & Diff. Equations',     code:'LA+DE', color:'#6bcfaa', bg:'rgba(107,207,170,0.1)',
-    topics:['Variable Separable','Exact ODE',"Picard's Theorem",'Second Order ODE with Const. Coeff.','Cauchy Euler Theorem','Method of Undetermined Coefficients','Variation of Parameters','Operator Method','Higher Order ODE','Power Series Method','Sturm Liouville BVP','Eigenvalue and Eigenvectors','Laplace Transform'] },
+    topics:['Vectors & Matrices','Determinants','Eigenvalues & Eigenvectors','Linear Transformations','ODE — 1st Order','ODE — 2nd Order','Laplace Transforms','PDE Basics','Fourier Series','Systems of ODEs'] },
   { id:'es',   name:'Electronic Systems',                   code:'ES',    color:'#ffaa6b', bg:'rgba(255,170,107,0.1)',
-    topics:['Logic Gates','K-Map','Signal System','LTI System','Laplace Transform and Continuous-Time LTI Systems'] },
+    topics:['Diodes & Rectifiers','BJT Biasing','FET & MOSFET','Amplifier Circuits','Op-Amps','Feedback Systems','Oscillators','Power Amplifiers','Digital Logic Basics','ADC & DAC'] },
   { id:'nas',  name:'Network Analysis & Synthesis',         code:'NAS',   color:'#ff8fa3', bg:'rgba(255,143,163,0.1)',
-    topics:['Graph Theory(CH-3)','Network Theorem(CH-4)','Laplace Transform (CH-5)','Two Port Network (CH-6)','Sinusoidal Steady State Analysis (CH-8)','Magnetically Coupled Circuits(CH-9)','Network Synthesis (CH-12)'] }
+    topics:['KVL & KCL','Network Theorems','Thevenin & Norton','AC Circuit Analysis','Two-Port Networks','Network Functions','Bode Plots','Active Filters','Passive Filter Design','Stability Analysis'] }
 ];
 
 const SK='syltk_v5', SAK='syltk_act_v5';
-let state = JSON.parse(localStorage.getItem(SK)||'null') || { done:{}, compTs:{}, dates:{} };
+let state = JSON.parse(localStorage.getItem(SK)||'null') || { done:{}, compTs:{}, dates:{}, topics:{} };
 let actLog = JSON.parse(localStorage.getItem(SAK)||'[]');
-if(!state.dates) state.dates={};
+if(!state.dates)  state.dates={};
 if(!state.compTs) state.compTs={};
+if(!state.topics) state.topics={};
+
+// Restore persisted topic lists (fixes stale-percentage bug).
+// Use the user's saved topics if they exist, else keep hardcoded defaults.
+SUBJECTS.forEach(s=>{
+  if(state.topics[s.id]) s.topics = state.topics[s.id];
+});
+
+// Reconcile: strip done/date entries for topics that no longer exist.
+SUBJECTS.forEach(s=>{
+  if(state.done[s.id])
+    state.done[s.id] = state.done[s.id].filter(t => s.topics.includes(t));
+});
 
 function save(){ localStorage.setItem(SK,JSON.stringify(state)); localStorage.setItem(SAK,JSON.stringify(actLog.slice(-40))); }
 function fmtTs(ms){ return new Date(ms).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',hour12:true}); }
@@ -296,12 +318,23 @@ window.toggleTopic = function(sid, topic, checked){
   save(); refreshCard(sid); updateStats(); updateChart(); renderLog(); renderDayPanel(selectedDay);
 };
 
+window.removeTopic = function(sid, topic){
+  const s=SUBJECTS.find(x=>x.id===sid);
+  s.topics=s.topics.filter(t=>t!==topic);
+  state.topics[sid]=[...s.topics];
+  if(state.done[sid]) state.done[sid]=state.done[sid].filter(t=>t!==topic);
+  if(state.compTs[sid]) delete state.compTs[sid][topic];
+  if(state.dates[sid]) delete state.dates[sid][topic];
+  save(); refreshCard(sid); updateStats(); updateChart(); renderCal(); renderDayPanel(selectedDay);
+};
+
 window.addTopic = function(sid){
   const inp=document.getElementById('inp-'+sid); const v=inp.value.trim();
   if(!v) return;
   const s=SUBJECTS.find(x=>x.id===sid);
   if(!s.topics.includes(v)) s.topics.push(v);
-  inp.value=''; refreshCard(sid); updateStats(); updateChart();
+  state.topics[sid]=[...s.topics];
+  inp.value=''; save(); refreshCard(sid); updateStats(); updateChart();
 };
 
 function esc(s){ return s.replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
@@ -324,11 +357,12 @@ function refreshCard(sid){
     return `<div class="trow">
       <input type="checkbox" class="tcb" ${chk?'checked':''} onchange="toggleTopic('${sid}','${esc(t)}',this.checked)">
       <span class="tname${chk?' done':''}">${t}</span>
-      <button type="button" class="date-btn${d?' has-date':''}" title="${d?'Change date':'Assign a study date'}">
+      <button class="date-btn${d?' has-date':''}" title="${d?'Change date':'Assign a study date'}">
         ${label}
-        <input type="date" value="${d}" onclick="try{this.showPicker();}catch(e){}" onchange="setTopicDate('${sid}','${esc(t)}',this.value)">
+        <input type="date" value="${d}" onchange="setTopicDate('${sid}','${esc(t)}',this.value)">
       </button>
       ${ts}
+      <button class="del-btn" title="Remove topic" onclick="removeTopic('${sid}','${esc(t)}')">&#215;</button>
     </div>`;
   }).join('')+`<div class="add-row">
     <input class="add-inp" id="inp-${sid}" placeholder="Add a topic…" onkeydown="if(event.key==='Enter')addTopic('${sid}')">
