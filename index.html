@@ -43,61 +43,16 @@ html,body { color-scheme:dark; background:var(--bg); color:var(--text); font-fam
 .subjects { display:flex; flex-direction:column; gap:10px; }
 .card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--r); overflow:hidden; transition:border-color .2s; }
 .card:hover { border-color:var(--border2); }
-
 .card-hdr { display:flex; align-items:center; justify-content:space-between; padding:14px 16px 10px; cursor:pointer; user-select:none; gap:12px; }
 .card-hdr:hover { background:var(--bg3); }
-.hdr-l { display:flex; align-items:center; gap:11px; min-width:0; flex:1; }
+.hdr-l { display:flex; align-items:center; gap:11px; min-width:0; }
 .sdot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
 .sname { font-size:14px; font-weight:500; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .scode { font-size:11px; color:var(--text3); margin-top:1px; }
-
-/* exam pill in card header */
-.exam-pill {
-  display:inline-flex; align-items:center; gap:5px;
-  font-size:11px; color:var(--text3); padding:3px 9px; border-radius:20px;
-  border:1px solid var(--border); background:var(--bg3);
-  cursor:pointer; white-space:nowrap; flex-shrink:0;
-  transition:all .15s; user-select:none;
-}
-.exam-pill:hover { border-color:var(--border2); color:var(--text2); }
-.exam-pill.has-exam { color:var(--text2); }
-.exam-pill svg { flex-shrink:0; }
-
-.hdr-r { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+.hdr-r { display:flex; align-items:center; gap:10px; flex-shrink:0; }
 .badge { font-size:11px; font-weight:500; padding:3px 9px; border-radius:20px; }
 .chev { color:var(--text3); font-size:9px; transition:transform .25s; display:inline-block; }
 .chev.open { transform:rotate(180deg); }
-
-/* exam date form — drops below header, above progress bar */
-.exam-form {
-  display:none; padding:10px 16px 12px;
-  border-top:1px solid var(--border);
-  background:var(--bg3);
-}
-.exam-form.open { display:block; }
-.exam-form-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-.exam-form label { font-size:11px; color:var(--text3); white-space:nowrap; }
-.exam-inp {
-  background:var(--bg4); border:1px solid var(--border2); border-radius:var(--rs);
-  padding:5px 8px; color:var(--text); font-size:12px; font-family:inherit; outline:none;
-  color-scheme:dark;
-}
-.exam-inp:focus { border-color:rgba(255,255,255,.2); }
-.exam-save-btn {
-  background:var(--bg4); border:1px solid var(--border2); border-radius:var(--rs);
-  padding:5px 12px; color:var(--text2); font-size:12px; font-family:inherit; cursor:pointer;
-}
-.exam-save-btn:hover { color:var(--text); }
-.exam-clear-btn {
-  background:none; border:none; color:var(--text3); font-size:12px; font-family:inherit;
-  cursor:pointer; padding:5px 4px;
-}
-.exam-clear-btn:hover { color:#ff6b6b; }
-.exam-countdown {
-  font-size:11px; color:var(--text3); margin-top:6px;
-}
-.exam-countdown.soon { color:#ffaa6b; }
-.exam-countdown.very-soon { color:#ff8fa3; }
 
 .prog-row { padding:0 16px 12px; display:flex; align-items:center; gap:8px; }
 .prog-bg { flex:1; height:4px; background:var(--bg4); border-radius:2px; overflow:hidden; }
@@ -108,22 +63,13 @@ html,body { color-scheme:dark; background:var(--bg); color:var(--text); font-fam
 .tbody { border-top:1px solid var(--border); display:none; }
 .tbody.open { display:block; }
 
-.trow { display:grid; grid-template-columns:16px 1fr auto auto auto auto; align-items:center; gap:8px; padding:8px 16px; border-bottom:1px solid var(--border); }
+.trow { display:grid; grid-template-columns:16px 1fr auto auto; align-items:center; gap:10px; padding:8px 16px; border-bottom:1px solid var(--border); }
+.trow:last-child { border-bottom:none; }
 .trow:hover .date-btn { opacity:1; }
-.trow:hover .note-btn { opacity:1; }
-.trow:hover .del-btn { opacity:1; }
 
 .tcb { width:14px; height:14px; cursor:pointer; accent-color:#8b9dff; flex-shrink:0; }
 .tname { font-size:13px; color:var(--text); }
 .tname.done { text-decoration:line-through; color:var(--text3); }
-
-.note-btn {
-  opacity:0; background:none; border:none; cursor:pointer;
-  color:var(--text3); font-size:13px; line-height:1; padding:2px 4px;
-  border-radius:4px; transition:all .15s; flex-shrink:0;
-}
-.note-btn:hover { color:var(--text2); background:var(--bg4); }
-.note-btn.has-note { opacity:1; color:#b09dff; }
 
 .date-btn {
   position:relative; display:inline-flex; align-items:center;
@@ -141,33 +87,6 @@ html,body { color-scheme:dark; background:var(--bg); color:var(--text); font-fam
 
 .comp-ts { font-size:10px; color:var(--text3); white-space:nowrap; text-align:right; min-width:56px; }
 
-.del-btn {
-  opacity:0; background:none; border:none; cursor:pointer;
-  color:var(--text3); font-size:15px; line-height:1; padding:2px 3px;
-  border-radius:4px; transition:all .15s; flex-shrink:0;
-}
-.del-btn:hover { color:#ff6b6b; background:rgba(255,107,107,0.1); }
-
-/* notes panel — sits between topic row and next row */
-.note-panel {
-  display:none; padding:8px 16px 10px 42px;
-  border-bottom:1px solid var(--border);
-  background:var(--bg3);
-}
-.note-panel.open { display:block; }
-.note-ta {
-  width:100%; background:var(--bg4); border:1px solid var(--border2);
-  border-radius:var(--rs); padding:7px 10px; color:var(--text);
-  font-size:12px; font-family:inherit; outline:none; resize:vertical;
-  min-height:64px; line-height:1.5; color-scheme:dark;
-}
-.note-ta::placeholder { color:var(--text3); }
-.note-ta:focus { border-color:rgba(255,255,255,.2); }
-.note-meta { display:flex; align-items:center; justify-content:space-between; margin-top:5px; }
-.note-hint { font-size:10px; color:var(--text3); }
-.note-saved { font-size:10px; color:#6bcfaa; opacity:0; transition:opacity .3s; }
-.note-saved.show { opacity:1; }
-
 .add-row { display:flex; gap:6px; padding:10px 16px; border-top:1px solid var(--border); background:var(--bg3); }
 .add-inp { flex:1; background:var(--bg4); border:1px solid var(--border2); border-radius:var(--rs); padding:6px 10px; color:var(--text); font-size:12px; font-family:inherit; outline:none; }
 .add-inp::placeholder { color:var(--text3); }
@@ -175,7 +94,7 @@ html,body { color-scheme:dark; background:var(--bg); color:var(--text); font-fam
 .add-btn { background:var(--bg4); border:1px solid var(--border2); border-radius:var(--rs); padding:6px 12px; color:var(--text2); font-size:12px; font-family:inherit; cursor:pointer; }
 .add-btn:hover { color:var(--text); }
 
-/* right col */
+/* right */
 .right-col { display:flex; flex-direction:column; gap:12px; }
 .panel { background:var(--bg2); border:1px solid var(--border); border-radius:var(--r); padding:16px; }
 .panel-title { font-size:10px; font-weight:500; color:var(--text3); text-transform:uppercase; letter-spacing:.09em; margin-bottom:14px; }
@@ -230,9 +149,8 @@ html,body { color-scheme:dark; background:var(--bg); color:var(--text); font-fam
   .stats { grid-template-columns:repeat(2,1fr); }
   .right-col { grid-template-columns:1fr; }
   .page { padding:1.2rem 1rem 3rem; }
-  .trow { grid-template-columns:16px 1fr auto auto; }
+  .trow { grid-template-columns:16px 1fr auto; }
   .comp-ts { display:none; }
-  .exam-pill span.exam-text { display:none; }
 }
 </style>
 </head>
@@ -242,7 +160,7 @@ html,body { color-scheme:dark; background:var(--bg); color:var(--text); font-fam
 <div class="hdr">
   <div>
     <h1>Semester Syllabus Tracker</h1>
-    <p>Assign study dates · add notes to topics · set exam dates per subject</p>
+    <p>Assign study dates to topics · click a calendar day to see its tasks</p>
   </div>
   <div>
     <div class="ts-lbl">Session started</div>
@@ -252,7 +170,7 @@ html,body { color-scheme:dark; background:var(--bg); color:var(--text); font-fam
 
 <div class="stats">
   <div class="stat"><div class="stat-lbl">Overall</div><div class="stat-val" id="s-overall">0%</div><div class="stat-sub">completion</div></div>
-  <div class="stat"><div class="stat-lbl">Done</div><div class="stat-val" id="s-done">0</div><div class="stat-sub">of <span id="s-total">0</span> topics</div></div>
+  <div class="stat"><div class="stat-lbl">Done</div><div class="stat-val" id="s-done">0</div><div class="stat-sub">of <span id="s-total">50</span> topics</div></div>
   <div class="stat"><div class="stat-lbl">Scheduled</div><div class="stat-val" id="s-sched">0</div><div class="stat-sub">topics dated</div></div>
   <div class="stat"><div class="stat-lbl">Sessions</div><div class="stat-val" id="s-streak">0</div><div class="stat-sub">logged</div></div>
 </div>
@@ -310,31 +228,21 @@ const SUBJECTS = [
     topics:['Graph Theory(CH-3)','Network Theorem(CH-4)','Laplace Transform (CH-5)','Two Port Network (CH-6)','Sinusoidal Steady State Analysis (CH-8)','Magnetically Coupled Circuits(CH-9)','Network Synthesis (CH-12)'] }
 ];
 
-const SK='syltk_v6', SAK='syltk_act_v6';
-let state = JSON.parse(localStorage.getItem(SK)||'null') || { done:{}, compTs:{}, dates:{}, topics:{}, notes:{}, exams:{} };
+const SK='syltk_v5', SAK='syltk_act_v5';
+let state = JSON.parse(localStorage.getItem(SK)||'null') || { done:{}, compTs:{}, dates:{} };
 let actLog = JSON.parse(localStorage.getItem(SAK)||'[]');
-['dates','compTs','topics','notes','exams'].forEach(k=>{ if(!state[k]) state[k]={}; });
-
-// Restore persisted topic lists (prevents stale-percentage bug)
-SUBJECTS.forEach(s=>{
-  if(state.topics[s.id]) s.topics = state.topics[s.id];
-});
-// Reconcile: strip done entries for removed topics
-SUBJECTS.forEach(s=>{
-  if(state.done[s.id])
-    state.done[s.id] = state.done[s.id].filter(t => s.topics.includes(t));
-});
+if(!state.dates) state.dates={};
+if(!state.compTs) state.compTs={};
 
 function save(){ localStorage.setItem(SK,JSON.stringify(state)); localStorage.setItem(SAK,JSON.stringify(actLog.slice(-40))); }
 function fmtTs(ms){ return new Date(ms).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',hour12:true}); }
 function fmtDate(str){ if(!str) return ''; const [y,m,d]=str.split('-'); return new Date(+y,+m-1,+d).toLocaleDateString('en-IN',{day:'2-digit',month:'short'}); }
 function nowStr(){ return new Date().toLocaleString('en-IN',{weekday:'short',day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true}); }
-function esc(s){ return s.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
 
 document.getElementById('now-ts').textContent=nowStr();
 setInterval(()=>{ document.getElementById('now-ts').textContent=nowStr(); },15000);
 
-function getPct(s){ return s.topics.length===0 ? 0 : Math.round(((state.done[s.id]||[]).length)/s.topics.length*100); }
+function getPct(s){ return Math.round(((state.done[s.id]||[]).length)/s.topics.length*100); }
 
 function updateStats(){
   let done=0,total=0,sched=0;
@@ -343,8 +251,7 @@ function updateStats(){
     total+=s.topics.length;
     s.topics.forEach(t=>{ if((state.dates[s.id]||{})[t]) sched++; });
   });
-  const pct=total>0?Math.round(done/total*100):0;
-  document.getElementById('s-overall').textContent=pct+'%';
+  document.getElementById('s-overall').textContent=Math.round(done/total*100)+'%';
   document.getElementById('s-done').textContent=done;
   document.getElementById('s-total').textContent=total;
   document.getElementById('s-sched').textContent=sched;
@@ -368,85 +275,6 @@ function renderLog(){
     </div>`).join('');
 }
 
-/* ── Exam date ─────────────────────────────────────────── */
-function examCountdown(sid){
-  const ex=state.exams[sid]; if(!ex||!ex.date) return null;
-  const now=new Date();
-  const examDt=new Date(ex.date+'T'+(ex.time||'00:00'));
-  const diff=examDt-now;
-  if(diff<0) return { text:'Exam passed', cls:'' };
-  const days=Math.floor(diff/86400000);
-  const hrs=Math.floor((diff%86400000)/3600000);
-  if(days===0) return { text:`Today · ${hrs}h left`, cls:'very-soon' };
-  if(days<=3) return { text:`${days}d ${hrs}h left`, cls:'very-soon' };
-  if(days<=7) return { text:`${days} days left`, cls:'soon' };
-  return { text:`${days} days left`, cls:'' };
-}
-
-function examPillLabel(sid){
-  const ex=state.exams[sid];
-  if(!ex||!ex.date) return `<svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="12" height="11" rx="2"/><path d="M5 1v4M11 1v4M2 7h12"/></svg><span class="exam-text">Set exam</span>`;
-  const d=fmtDate(ex.date);
-  const t=ex.time||'';
-  return `<svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="12" height="11" rx="2"/><path d="M5 1v4M11 1v4M2 7h12"/></svg><span class="exam-text">${d}${t?' · '+t:''}</span>`;
-}
-
-window.toggleExamForm = function(sid, e){
-  e.stopPropagation();
-  const form=document.getElementById('examform-'+sid);
-  form.classList.toggle('open');
-};
-
-window.saveExam = function(sid){
-  const d=document.getElementById('examdate-'+sid).value;
-  const t=document.getElementById('examtime-'+sid).value;
-  if(!state.exams[sid]) state.exams[sid]={};
-  state.exams[sid].date=d; state.exams[sid].time=t;
-  save();
-  // update pill
-  const pill=document.getElementById('exampill-'+sid);
-  pill.className='exam-pill'+(d?' has-exam':'');
-  pill.innerHTML=examPillLabel(sid);
-  // update countdown
-  const cd=examCountdown(sid);
-  const cdEl=document.getElementById('examcd-'+sid);
-  if(cdEl){ cdEl.textContent=cd?cd.text:''; cdEl.className='exam-countdown'+(cd?' '+cd.cls:''); }
-};
-
-window.clearExam = function(sid){
-  delete state.exams[sid]; save();
-  document.getElementById('examdate-'+sid).value='';
-  document.getElementById('examtime-'+sid).value='';
-  const pill=document.getElementById('exampill-'+sid);
-  pill.className='exam-pill';
-  pill.innerHTML=examPillLabel(sid);
-  const cdEl=document.getElementById('examcd-'+sid);
-  if(cdEl){ cdEl.textContent=''; cdEl.className='exam-countdown'; }
-};
-
-/* ── Notes ─────────────────────────────────────────────── */
-window.toggleNote = function(sid, topic, btn){
-  const key=sid+'__'+topic.replace(/\s+/g,'_').replace(/[^a-z0-9_]/gi,'');
-  const panel=document.getElementById('notepanel-'+key);
-  if(!panel) return;
-  panel.classList.toggle('open');
-  btn.classList.toggle('has-note', !!(state.notes[sid]||{})[topic] || panel.classList.contains('open'));
-};
-
-window.saveNote = function(sid, topic, ta){
-  if(!state.notes[sid]) state.notes[sid]={};
-  state.notes[sid][topic]=ta.value;
-  save();
-  // flash saved indicator
-  const key=sid+'__'+topic.replace(/\s+/g,'_').replace(/[^a-z0-9_]/gi,'');
-  const sv=document.getElementById('notesaved-'+key);
-  if(sv){ sv.classList.add('show'); setTimeout(()=>sv.classList.remove('show'),1500); }
-  // update note btn style
-  const btn=document.getElementById('notebtn-'+key);
-  if(btn) btn.classList.toggle('has-note', !!ta.value.trim());
-};
-
-/* ── Topic actions ─────────────────────────────────────── */
 window.setTopicDate = function(sid, topic, val){
   if(!state.dates[sid]) state.dates[sid]={};
   if(val) state.dates[sid][topic]=val; else delete state.dates[sid][topic];
@@ -468,70 +296,39 @@ window.toggleTopic = function(sid, topic, checked){
   save(); refreshCard(sid); updateStats(); updateChart(); renderLog(); renderDayPanel(selectedDay);
 };
 
-window.removeTopic = function(sid, topic){
-  const s=SUBJECTS.find(x=>x.id===sid);
-  s.topics=s.topics.filter(t=>t!==topic);
-  state.topics[sid]=[...s.topics];
-  if(state.done[sid])   state.done[sid]=state.done[sid].filter(t=>t!==topic);
-  if(state.compTs[sid]) delete state.compTs[sid][topic];
-  if(state.dates[sid])  delete state.dates[sid][topic];
-  if(state.notes[sid])  delete state.notes[sid][topic];
-  save(); refreshCard(sid); updateStats(); updateChart(); renderCal(); renderDayPanel(selectedDay);
-};
-
 window.addTopic = function(sid){
   const inp=document.getElementById('inp-'+sid); const v=inp.value.trim();
   if(!v) return;
   const s=SUBJECTS.find(x=>x.id===sid);
   if(!s.topics.includes(v)) s.topics.push(v);
-  state.topics[sid]=[...s.topics];
-  inp.value=''; save(); refreshCard(sid); updateStats(); updateChart();
+  inp.value=''; refreshCard(sid); updateStats(); updateChart();
 };
 
-/* ── Card rendering ────────────────────────────────────── */
-function topicKey(sid, t){ return sid+'__'+t.replace(/\s+/g,'_').replace(/[^a-z0-9_]/gi,''); }
+function esc(s){ return s.replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
 
 function refreshCard(sid){
   const s=SUBJECTS.find(x=>x.id===sid);
-  const done=state.done[sid]||[], cts=state.compTs[sid]||{}, dates=state.dates[sid]||{}, notes=state.notes[sid]||{};
+  const done=state.done[sid]||[], cts=state.compTs[sid]||{}, dates=state.dates[sid]||{};
   const pct=getPct(s);
   const card=document.getElementById('card-'+sid); if(!card) return;
   card.querySelector('.prog-fill').style.width=pct+'%';
   card.querySelector('.prog-pct').textContent=pct+'%';
   card.querySelector('.badge').textContent=pct+'%';
-
-  // update exam pill
-  const pill=document.getElementById('exampill-'+sid);
-  if(pill){ const ex=state.exams[sid]; pill.className='exam-pill'+(ex&&ex.date?' has-exam':''); pill.innerHTML=examPillLabel(sid); }
-  const cdEl=document.getElementById('examcd-'+sid);
-  if(cdEl){ const cd=examCountdown(sid); cdEl.textContent=cd?cd.text:''; cdEl.className='exam-countdown'+(cd?' '+cd.cls:''); }
-
   const tbody=card.querySelector('.tbody');
   const wasOpen=tbody.classList.contains('open');
 
   tbody.innerHTML=s.topics.map(t=>{
-    const chk=done.includes(t), d=dates[t]||'', n=notes[t]||'';
+    const chk=done.includes(t), d=dates[t]||'';
     const label=d?fmtDate(d):'+ date';
     const ts=cts[t]?`<span class="comp-ts">${fmtTs(cts[t])}</span>`:'<span class="comp-ts"></span>';
-    const key=topicKey(sid,t);
-    const noteIconColor=n?'has-note':'';
-    return `<div class="trow" id="trow-${key}">
+    return `<div class="trow">
       <input type="checkbox" class="tcb" ${chk?'checked':''} onchange="toggleTopic('${sid}','${esc(t)}',this.checked)">
       <span class="tname${chk?' done':''}">${t}</span>
-      <button id="notebtn-${key}" class="note-btn ${noteIconColor}" title="Notes" onclick="toggleNote('${sid}','${esc(t)}',this)">✎</button>
       <button type="button" class="date-btn${d?' has-date':''}" title="${d?'Change date':'Assign a study date'}">
         ${label}
         <input type="date" value="${d}" onclick="try{this.showPicker();}catch(e){}" onchange="setTopicDate('${sid}','${esc(t)}',this.value)">
       </button>
       ${ts}
-      <button class="del-btn" title="Remove topic" onclick="removeTopic('${sid}','${esc(t)}')">&#215;</button>
-    </div>
-    <div class="note-panel" id="notepanel-${key}">
-      <textarea class="note-ta" placeholder="Add lecture links, revision tips, important formulas, or any notes…" oninput="saveNote('${sid}','${esc(t)}',this)">${n}</textarea>
-      <div class="note-meta">
-        <span class="note-hint">Auto-saved · Shift+Enter for new line</span>
-        <span class="note-saved" id="notesaved-${key}">Saved ✓</span>
-      </div>
     </div>`;
   }).join('')+`<div class="add-row">
     <input class="add-inp" id="inp-${sid}" placeholder="Add a topic…" onkeydown="if(event.key==='Enter')addTopic('${sid}')">
@@ -544,8 +341,6 @@ function refreshCard(sid){
 function buildCards(){
   const col=document.getElementById('subjects-col'); col.innerHTML='';
   SUBJECTS.forEach(s=>{
-    const ex=state.exams[s.id]||{};
-    const cd=examCountdown(s.id);
     const div=document.createElement('div'); div.className='card'; div.id='card-'+s.id;
     div.innerHTML=`
       <div class="card-hdr" onclick="toggleCard('${s.id}')">
@@ -554,23 +349,9 @@ function buildCards(){
           <div><div class="sname">${s.name}</div><div class="scode">${s.code}</div></div>
         </div>
         <div class="hdr-r">
-          <button id="exampill-${s.id}" class="exam-pill${ex.date?' has-exam':''}" onclick="toggleExamForm('${s.id}',event)" title="Set exam date & time">
-            ${examPillLabel(s.id)}
-          </button>
           <span class="badge" style="background:${s.bg};color:${s.color}">${getPct(s)}%</span>
           <span class="chev" id="chev-${s.id}">▼</span>
         </div>
-      </div>
-      <div class="exam-form" id="examform-${s.id}" onclick="event.stopPropagation()">
-        <div class="exam-form-row">
-          <label>Exam date</label>
-          <input type="date" class="exam-inp" id="examdate-${s.id}" value="${ex.date||''}" color-scheme="dark">
-          <label>Start time</label>
-          <input type="time" class="exam-inp" id="examtime-${s.id}" value="${ex.time||''}">
-          <button class="exam-save-btn" onclick="saveExam('${s.id}')">Save</button>
-          <button class="exam-clear-btn" onclick="clearExam('${s.id}')" title="Clear exam date">✕</button>
-        </div>
-        <div class="exam-countdown ${cd?cd.cls:''}" id="examcd-${s.id}">${cd?cd.text:''}</div>
       </div>
       <div class="prog-row">
         <div class="prog-bg"><div class="prog-fill" style="background:${s.color};width:${getPct(s)}%"></div></div>
@@ -590,8 +371,7 @@ window.toggleCard=function(sid){
 buildCards(); updateStats(); renderLog();
 
 /* ── Calendar ───────────────────────────────────────────── */
-let calD=new Date(), selectedDay=null;
-calD.setDate(1);
+let calD=new Date(2026,3,1), selectedDay=null;
 
 function getDateStr(y,m,d){ return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
 
@@ -609,12 +389,7 @@ function getDotsForDate(ds){
   SUBJECTS.forEach(s=>{
     if(s.topics.some(t=>(state.dates[s.id]||{})[t]===ds)) colors.push(s.color);
   });
-  // also add exam dots
-  SUBJECTS.forEach(s=>{
-    const ex=state.exams[s.id];
-    if(ex&&ex.date===ds&&!colors.includes(s.color+'exam')) colors.push(s.color);
-  });
-  return [...new Set(colors)];
+  return colors;
 }
 
 function renderDayPanel(ds){
@@ -626,20 +401,10 @@ function renderDayPanel(ds){
   document.getElementById('day-panel-date').textContent=label;
   document.getElementById('day-panel-count').textContent=tasks.length ? tasks.length+' task'+(tasks.length>1?'s':'') : '';
   const list=document.getElementById('day-task-list');
-  // check exams on this day
-  const examsToday=SUBJECTS.filter(s=>{ const ex=state.exams[s.id]; return ex&&ex.date===ds; });
-  let examHtml=examsToday.map(s=>{
-    const ex=state.exams[s.id];
-    return `<div class="day-task">
-      <div class="day-task-dot" style="background:${s.color}"></div>
-      <span class="day-task-name" style="font-weight:500">📋 ${s.name} Exam${ex.time?' · '+ex.time:''}</span>
-      <span class="day-task-code" style="background:rgba(255,143,163,0.15);color:#ff8fa3">EXAM</span>
-    </div>`;
-  }).join('');
-  if(!tasks.length&&!examsToday.length){
-    list.innerHTML='<div class="day-no-tasks">No tasks or exams scheduled</div>';
+  if(!tasks.length){
+    list.innerHTML='<div class="day-no-tasks">No tasks scheduled for this day</div>';
   } else {
-    list.innerHTML=examHtml+tasks.map(({topic,subj,done})=>`
+    list.innerHTML=tasks.map(({topic,subj,done})=>`
       <div class="day-task">
         <div class="day-task-dot" style="background:${subj.color}"></div>
         <span class="day-task-name${done?' done':''}">${topic}</span>
@@ -655,22 +420,21 @@ function renderCal(){
   const grid=document.getElementById('cal-grid'); grid.innerHTML='';
   ['S','M','T','W','T','F','S'].forEach(d=>{ const el=document.createElement('div'); el.className='cal-dow'; el.textContent=d; grid.appendChild(el); });
   const first=new Date(y,m,1).getDay(), days=new Date(y,m+1,0).getDate();
-  const n=new Date(); const todayKey=getDateStr(n.getFullYear(),n.getMonth(),n.getDate());
+  const todayKey=getDateStr(new Date().getFullYear(),new Date().getMonth(),new Date().getDate());
 
   for(let i=0;i<first;i++){
     const el=document.createElement('div'); el.className='cal-cell other-m';
     el.innerHTML=`<span class="cal-num">${new Date(y,m,-first+i+1).getDate()}</span>`;
     grid.appendChild(el);
   }
+
   for(let d=1;d<=days;d++){
     const ds=getDateStr(y,m,d);
     const isToday=ds===todayKey, isSel=ds===selectedDay;
     const dots=getDotsForDate(ds);
-    // mark exam days with a ring
-    const isExam=SUBJECTS.some(s=>{ const ex=state.exams[s.id]; return ex&&ex.date===ds; });
     const el=document.createElement('div');
     el.className='cal-cell'+(isToday?' today':'')+(isSel&&!isToday?' selected':'');
-    el.innerHTML=`<span class="cal-num" ${isExam&&!isToday?'style="border:1px solid rgba(255,143,163,0.5)"':''}>${d}</span>`
+    el.innerHTML=`<span class="cal-num">${d}</span>`
       +(dots.length?`<div class="cal-dots">${dots.slice(0,5).map(c=>`<div class="cal-dot" style="background:${c}"></div>`).join('')}</div>`:'');
     el.onclick=()=>{ selectedDay=(selectedDay===ds?null:ds); renderCal(); renderDayPanel(selectedDay); };
     grid.appendChild(el);
