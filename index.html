@@ -261,6 +261,48 @@ html,body { color-scheme:dark; background:var(--bg); color:var(--text); font-fam
 .subj-note-saved { font-size:10px; color:#6bcfaa; opacity:0; transition:opacity .3s; }
 .subj-note-saved.show { opacity:1; }
 
+/* marks target */
+.marks-pill {
+  display:inline-flex; align-items:center; gap:5px;
+  font-size:11px; color:var(--text3); padding:3px 9px; border-radius:20px;
+  border:1px solid var(--border); background:var(--bg3);
+  cursor:pointer; white-space:nowrap; flex-shrink:0;
+  transition:all .15s; user-select:none;
+}
+.marks-pill:hover { border-color:var(--border2); color:var(--text2); }
+.marks-pill.has-marks { color:var(--text2); }
+
+.marks-form {
+  display:none; padding:10px 16px 12px;
+  border-top:1px solid var(--border); background:var(--bg3);
+}
+.marks-form.open { display:block; }
+.marks-form-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.marks-form label { font-size:11px; color:var(--text3); white-space:nowrap; }
+.marks-num {
+  width:70px; background:var(--bg4); border:1px solid var(--border2); border-radius:var(--rs);
+  padding:5px 8px; color:var(--text); font-size:12px; font-family:inherit; outline:none;
+  color-scheme:dark; -moz-appearance:textfield;
+}
+.marks-num::-webkit-outer-spin-button, .marks-num::-webkit-inner-spin-button { -webkit-appearance:none; }
+.marks-num:focus { border-color:rgba(255,255,255,.2); }
+.marks-save-btn {
+  background:var(--bg4); border:1px solid var(--border2); border-radius:var(--rs);
+  padding:5px 12px; color:var(--text2); font-size:12px; font-family:inherit; cursor:pointer;
+}
+.marks-save-btn:hover { color:var(--text); }
+.marks-clear-btn {
+  background:none; border:none; color:var(--text3); font-size:12px; font-family:inherit;
+  cursor:pointer; padding:5px 4px;
+}
+.marks-clear-btn:hover { color:#ff6b6b; }
+.marks-bar-wrap { margin-top:8px; }
+.marks-bar-label { display:flex; justify-content:space-between; font-size:10px; color:var(--text3); margin-bottom:4px; }
+.marks-bar-label span:last-child { color:var(--text2); }
+.marks-bar-bg { height:4px; background:var(--bg4); border-radius:2px; overflow:hidden; }
+.marks-bar-fill { height:100%; border-radius:2px; transition:width .5s ease; }
+
+
 </style>
 </head>
 <body>
@@ -326,7 +368,7 @@ html,body { color-scheme:dark; background:var(--bg); color:var(--text); font-fam
 <script>
 const SUBJECTS = [
   { id:'dsa',  name:'Data Structures & Algorithms',        code:'DSA',   color:'#7b9cff', bg:'rgba(123,156,255,0.1)',
-    topics:['Searching','Sorting','Linked List','Stack','Queue','Tree','Graph'] },
+    topics:['Searching','Sorting','Linked List','Stack','Queue','Tree','Heap','Graph'] },
   { id:'qme',  name:'Quantum Mechanics & Electromagnetics', code:'QM+EM', color:'#b09dff', bg:'rgba(176,157,255,0.1)',
     topics:['Quantum Mechanics','The Wave Equation',"Schrödinger's Equation",'Linearity and Superposition','Expectation Values','Operators',"Schrödinger's Equation: Steady-State Form",'Particle in a Box','Finite Potential Well','Tunnel Effect','Harmonic Oscillator','Vector Analysis','Electrostatics','Potentials','Electric Fields in Matter','Magnetostatics','Magnetic Fields in Matter','Electrodynamics','Conservation Laws','Electromagnetic Waves'] },
   { id:'lade', name:'Linear Algebra & Diff. Equations',     code:'LA+DE', color:'#6bcfaa', bg:'rgba(107,207,170,0.1)',
@@ -337,39 +379,38 @@ const SUBJECTS = [
     topics:['Graph Theory(CH-3)','Network Theorem(CH-4)','Laplace Transform (CH-5)','Two Port Network (CH-6)','Sinusoidal Steady State Analysis (CH-8)','Magnetically Coupled Circuits(CH-9)','Network Synthesis (CH-12)'] }
 ];
 
-const SK='syltk_v6', SAK='syltk_act_v6';
+const SK='syltk_v7', SAK='syltk_act_v7';
 
-// ── Migrate from any previous version keys ──────────────────────
+// ── Migrate from any previous version — zero data loss ──────────
 (function migrate(){
-  if(localStorage.getItem(SK)) return; // already on v6, nothing to do
-  const oldKeys=['syltk_v5','syltk_v4','syltk_v3'];
+  if(localStorage.getItem(SK)) return; // already on v7, skip
+  const oldKeys=['syltk_v6','syltk_v5','syltk_v4','syltk_v3'];
   for(const ok of oldKeys){
     const raw=localStorage.getItem(ok);
     if(!raw) continue;
     try{
       const old=JSON.parse(raw);
-      // Carry forward every field that exists; v6 adds notes{} and exams{}
       const migrated={
-        done:   old.done   ||{},
-        compTs: old.compTs ||{},
-        dates:  old.dates  ||{},
-        topics: old.topics ||{},
-        notes:  old.notes  ||{},
-        exams:  old.exams  ||{},
-        subjectNotes: old.subjectNotes ||{}
+        done:         old.done         ||{},
+        compTs:       old.compTs       ||{},
+        dates:        old.dates        ||{},
+        topics:       old.topics       ||{},
+        notes:        old.notes        ||{},
+        exams:        old.exams        ||{},
+        subjectNotes: old.subjectNotes ||{},
+        marks:        old.marks        ||{}   // new in v7
       };
       localStorage.setItem(SK, JSON.stringify(migrated));
-      // migrate activity log too
       const oldAct=localStorage.getItem(ok.replace('syltk','syltk_act'));
       if(oldAct) localStorage.setItem(SAK, oldAct);
     }catch(e){}
-    break; // stop after first successful migration
+    break;
   }
 })();
 
-let state = JSON.parse(localStorage.getItem(SK)||'null') || { done:{}, compTs:{}, dates:{}, topics:{}, notes:{}, exams:{}, subjectNotes:{} };
+let state = JSON.parse(localStorage.getItem(SK)||'null') || { done:{}, compTs:{}, dates:{}, topics:{}, notes:{}, exams:{}, subjectNotes:{}, marks:{} };
 let actLog = JSON.parse(localStorage.getItem(SAK)||'[]');
-['dates','compTs','topics','notes','exams','subjectNotes'].forEach(k=>{ if(!state[k]) state[k]={}; });
+['dates','compTs','topics','notes','exams','subjectNotes','marks'].forEach(k=>{ if(!state[k]) state[k]={}; });
 
 // Restore persisted topic lists (prevents stale-percentage bug)
 SUBJECTS.forEach(s=>{
@@ -560,6 +601,51 @@ window.addTopic = function(sid){
   inp.value=''; save(); refreshCard(sid); updateStats(); updateChart();
 };
 
+/* ── Marks target ──────────────────────────────────────── */
+function marksPillLabel(sid){
+  const m=state.marks[sid];
+  if(!m||!m.total) return `<svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg><span>Set goal</span>`;
+  return `<svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg><span>${m.target}/${m.total}</span>`;
+}
+
+function marksBarHtml(sid, color){
+  const m=state.marks[sid];
+  if(!m||!m.total) return '';
+  const pct=Math.min(100,Math.round((m.target/m.total)*100));
+  return `<div class="marks-bar-wrap">
+    <div class="marks-bar-label"><span>Target ${pct}% · ${m.target} of ${m.total} marks</span><span>${m.total - m.target} marks cushion</span></div>
+    <div class="marks-bar-bg"><div class="marks-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+  </div>`;
+}
+
+window.toggleMarksForm = function(sid, e){
+  e.stopPropagation();
+  document.getElementById('marksform-'+sid).classList.toggle('open');
+};
+
+window.saveMarks = function(sid){
+  const target=parseInt(document.getElementById('markstarget-'+sid).value)||0;
+  const total=parseInt(document.getElementById('markstotal-'+sid).value)||0;
+  if(!state.marks[sid]) state.marks[sid]={};
+  state.marks[sid]={target,total};
+  save();
+  const pill=document.getElementById('markspill-'+sid);
+  if(pill){ pill.className='marks-pill'+(total?' has-marks':''); pill.innerHTML=marksPillLabel(sid); }
+  const barEl=document.getElementById('marksbar-'+sid);
+  const s=SUBJECTS.find(x=>x.id===sid);
+  if(barEl) barEl.innerHTML=marksBarHtml(sid, s.color);
+};
+
+window.clearMarks = function(sid){
+  delete state.marks[sid]; save();
+  document.getElementById('markstarget-'+sid).value='';
+  document.getElementById('markstotal-'+sid).value='';
+  const pill=document.getElementById('markspill-'+sid);
+  if(pill){ pill.className='marks-pill'; pill.innerHTML=marksPillLabel(sid); }
+  const barEl=document.getElementById('marksbar-'+sid);
+  if(barEl) barEl.innerHTML='';
+};
+
 /* ── Card rendering ────────────────────────────────────── */
 function topicKey(sid, t){ return sid+'__'+t.replace(/\s+/g,'_').replace(/[^a-z0-9_]/gi,''); }
 
@@ -627,12 +713,26 @@ function buildCards(){
           <button id="subjnotebtn-${s.id}" class="subj-note-btn${state.subjectNotes[s.id]?' has-note':''}" title="Subject notes" onclick="toggleSubjectNote('${s.id}',event)">✎</button>
         </div>
         <div class="hdr-r">
+          <button id="markspill-${s.id}" class="marks-pill${(state.marks[s.id]&&state.marks[s.id].total)?' has-marks':''}" onclick="toggleMarksForm('${s.id}',event)" title="Set marks target">
+            ${marksPillLabel(s.id)}
+          </button>
           <button id="exampill-${s.id}" class="exam-pill${ex.date?' has-exam':''}" onclick="toggleExamForm('${s.id}',event)" title="Set exam date & time">
             ${examPillLabel(s.id)}
           </button>
           <span class="badge" style="background:${s.bg};color:${s.color}">${getPct(s)}%</span>
           <span class="chev" id="chev-${s.id}">▼</span>
         </div>
+      </div>
+      <div class="marks-form" id="marksform-${s.id}" onclick="event.stopPropagation()">
+        <div class="marks-form-row">
+          <label>Target marks</label>
+          <input type="number" class="marks-num" id="markstarget-${s.id}" placeholder="e.g. 75" min="0" value="${(state.marks[s.id]&&state.marks[s.id].target)||''}">
+          <label>Out of</label>
+          <input type="number" class="marks-num" id="markstotal-${s.id}" placeholder="e.g. 100" min="1" value="${(state.marks[s.id]&&state.marks[s.id].total)||''}">
+          <button class="marks-save-btn" onclick="saveMarks('${s.id}')">Save</button>
+          <button class="marks-clear-btn" onclick="clearMarks('${s.id}')" title="Clear goal">✕</button>
+        </div>
+        <div id="marksbar-${s.id}">${marksBarHtml(s.id, s.color)}</div>
       </div>
       <div class="exam-form" id="examform-${s.id}" onclick="event.stopPropagation()">
         <div class="exam-form-row">
